@@ -24,8 +24,8 @@ model_args:
 
 # training
 device: [0]
-batch_size: 128 
-test_batch_size: 128
+batch_size: 64 
+test_batch_size: 164
 
 #optim
 base_lr: 0.1
