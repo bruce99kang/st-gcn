@@ -24,13 +24,13 @@ model_args:
 
 # training
 device: [0]
-batch_size: 32
-test_batch_size: 32
+batch_size: 40
+test_batch_size: 40
 
 #optim
 base_lr: 0.1
-step: [100,150]
-num_epoch: 100
+step: [100,300,500,600]
+num_epoch: 700
 
 
 
