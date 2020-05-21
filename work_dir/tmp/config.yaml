@@ -1,15 +1,9 @@
-# command line: main.py recognition -c config/st_gcn/kinetics-skeleton/train.yaml
+# command line: vis_bruce.py
 
-base_lr: 0.01
-batch_size: 256
 config: config/st_gcn/kinetics-skeleton/demo.yaml
-debug: false
 device:
 - 0
-eval_interval: 5
-feeder: feeder.feeder
 ignore_weights: []
-log_interval: 100
 model: net.st_gcn.Model
 model_args:
     edge_importance_weighting: true
@@ -17,26 +11,9 @@ model_args:
         layout: openpose
         strategy: spatial
     in_channels: 3
-    num_class: 400
-nesterov: true
-num_epoch: 80
-num_worker: 4
-optimizer: SGD
-pavi_log: false
-phase: train
+    num_class: 4
 print_log: true
-save_interval: 10
 save_log: true
-save_result: false
-show_topk:
-- 1
-- 5
-start_epoch: 0
-step: []
-test_batch_size: 256
-test_feeder_args: {}
-train_feeder_args: {}
 use_gpu: true
-weight_decay: 0.0001
-weights: ./models/st_gcn.kinetics.pt
+weights: ./models/epoch970_model.pt
 work_dir: ./work_dir/tmp

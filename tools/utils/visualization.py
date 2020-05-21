@@ -13,6 +13,12 @@ def stgcn_visualize(pose,
     _, T, V, M = pose.shape
     T = len(video)
     pos_track = [None] * M
+    tmp=''
+    label_1 = 0
+    label_2 = 0
+    label_3 = 0
+    label_4 = 0
+    
     for t in range(T):
         frame = video[t]
 
@@ -38,30 +44,28 @@ def stgcn_visualize(pose,
                 if xi + yi == 0 or xj + yj == 0:
                     continue
                 else:
-                    xi = int((xi + 0.5) * W)
-                    yi = int((yi + 0.5) * H)
-                    xj = int((xj + 0.5) * W)
-                    yj = int((yj + 0.5) * H)
+                    xi = int((xi + 0.5) * 0.5)
+                    yi = int((yi + 0.5) * 0.5)
+                    xj = int((xj + 0.5) * 0.5)
+                    yj = int((yj + 0.5) * 0.5)
                 cv2.line(skeleton, (xi, yi), (xj, yj), (255, 255, 255),
                          int(np.ceil(2 * scale_factor)))
 
             body_label = label_sequence[t // 4][m]
-            x_nose = int((pose[0, t, 0, m] + 0.5) * W)
-            y_nose = int((pose[1, t, 0, m] + 0.5) * H)
-            x_neck = int((pose[0, t, 1, m] + 0.5) * W)
-            y_neck = int((pose[1, t, 1, m] + 0.5) * H)
+            # x_nose = int((pose[0, t, 0, m] + 0.5))
+            # y_nose = int((pose[1, t, 0, m] + 0.5))
+            # x_neck = int((pose[0, t, 1, m] + 0.5))
+            # y_neck = int((pose[1, t, 1, m] + 0.5))
 
-            half_head = int(((x_neck - x_nose)**2 + (y_neck - y_nose)**2)**0.5)
-            pos = (x_nose + half_head, y_nose - half_head)
-            if pos_track[m] is None:
-                pos_track[m] = pos
-            else:
-                new_x = int(pos_track[m][0] + (pos[0] - pos_track[m][0]) * 0.2)
-                new_y = int(pos_track[m][1] + (pos[1] - pos_track[m][1]) * 0.2)
-                pos_track[m] = (new_x, new_y)
-            cv2.putText(text, body_label, pos_track[m],
-                        cv2.FONT_HERSHEY_TRIPLEX, 0.5 * scale_factor,
-                        (255, 255, 255))
+            # half_head = int(((x_neck - x_nose)**2 + (y_neck - y_nose)**2)**0.5)
+            # pos = (x_nose + half_head, y_nose - half_head)
+            # if pos_track[m] is None:
+            #     pos_track[m] = pos
+            # else:
+            #     new_x = int(pos_track[m][0] + (pos[0] - pos_track[m][0]) * 0.2)
+            #     new_y = int(pos_track[m][1] + (pos[1] - pos_track[m][1]) * 0.2)
+            #     pos_track[m] = (new_x, new_y)
+            cv2.putText(text, body_label, (10,40),cv2.FONT_HERSHEY_TRIPLEX, 0.5 * scale_factor,(255, 255, 255))
 
         # generate mask
         mask = frame * 0
@@ -72,12 +76,12 @@ def stgcn_visualize(pose,
             if score < 0.3:
                 continue
 
-            f = feature[t // 4, :, m]**5
+            f = feature[0 // 4, :, m]**5
             if f.mean() != 0:
                 f = f / f.mean()
             for v in range(V):
-                x = pose[0, t, v, m]
-                y = pose[1, t, v, m]
+                x = pose[0, 0, v, m]
+                y = pose[1, 0, v, m]
                 if x + y == 0:
                     continue
                 else:
@@ -98,8 +102,33 @@ def stgcn_visualize(pose,
         rgb_result += skeleton.astype(float) * 0.25
         rgb_result[rgb_result > 255] = 255
         rgb_result.astype(np.uint8)
-
+        
+        if body_label == 'Loading':
+            if tmp != body_label:
+                label_1 = 0
+            else:
+                label_1 += 1
+        elif body_label == 'Drilling':            
+            if tmp != body_label:
+                label_2 = 0
+            else:
+                label_2 += 1
+        elif body_label == 'Touch Button':
+            if tmp != body_label:
+                label_3 = 0
+            else:
+                label_3 += 1
+        elif body_label == 'Unloading':
+            if tmp != body_label:
+                label_4 = 0
+            else:
+                label_4 += 1
+            
         put_text(skeleton, 'inputs of st-gcn', (0.1, 0.5))
+        put_text(skeleton_result, 'Loading:'+str(round(label_1/60,2))+'sec', (0.5,0.65))
+        put_text(skeleton_result, 'Drilling:'+str(round(label_2/60,2))+'sec', (0.55,0.65))
+        put_text(skeleton_result, 'Touch Button:'+str(round(label_3/60,2))+'sec', (0.6,0.65))
+        put_text(skeleton_result, 'UnLoading:'+str(round(label_4/60,2))+'sec', (0.65,0.65))
 
         text_1 = cv2.imread('./resource/demo_asset/original_video.png', cv2.IMREAD_UNCHANGED)
         text_2 = cv2.imread('./resource/demo_asset/pose_estimation.png', cv2.IMREAD_UNCHANGED)
@@ -121,7 +150,8 @@ def stgcn_visualize(pose,
         img0 = np.concatenate((frame, skeleton), axis=1)
         img1 = np.concatenate((skeleton_result, rgb_result), axis=1)
         img = np.concatenate((img0, img1), axis=0)
-
+        tmp = body_label
+        
         yield img
 
 def put_text(img, text, position, scale_factor=1):
