@@ -38,7 +38,7 @@ class IO():
         print('self.get_parser finish')
 
         # load arg form config file
-        argv = ['--config','config/st_gcn/kinetics-skeleton/demo.yaml']
+        #argv = ['--config','config/st_gcn/kinetics-skeleton/demo.yaml']
         p = parser.parse_args(argv)
         if p.config is not None:
             # load config file

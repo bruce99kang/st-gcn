@@ -3,8 +3,8 @@ work_dir: ./work_dir/recognition/kinetics_skeleton/ST_GCN
 # feeder
 feeder: feeder.feeder.Feeder
 train_feeder_args:
-  random_choose: True
-  random_move: True
+  random_choose: False
+  random_move: False
   window_size: 300 
   data_path: ../pose_train_data.npy
   label_path: ../pose_train_label.pkl
